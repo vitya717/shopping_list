@@ -25,6 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -61,8 +65,10 @@ fun NoteDetailsScreen(
     val uiState by noteDetailsViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val isKeyboardOpen by keyboardAsState()
+    var textFieldsRecompositionKey by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = isKeyboardOpen) {
+        if(!isKeyboardOpen) textFieldsRecompositionKey = !textFieldsRecompositionKey
         if(isKeyboardOpen) scrollState.scrollTo(value = 500)
     }
 
@@ -87,53 +93,54 @@ fun NoteDetailsScreen(
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
-            TextField(
-                value = uiState.noteTitle,
-                onValueChange = { title -> noteDetailsViewModel.updateTitleField(title) },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                placeholder = {
-                    Text(
-                        text = stringResource(
-                            id = R.string.note_details_screen_title_text_field_placeholder
+            key(textFieldsRecompositionKey) {
+                TextField(
+                    value = uiState.noteTitle,
+                    onValueChange = { title -> noteDetailsViewModel.updateTitleField(title) },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    placeholder = {
+                        Text(
+                            text = stringResource(
+                                id = R.string.note_details_screen_title_text_field_placeholder
+                            )
                         )
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
 //                    placeholderColor = Color.Gray
-                ),
-                textStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
-            )
-            TextField(
-                value = uiState.noteDescription,
-                onValueChange = { description ->
-                    noteDetailsViewModel.updateDescriptionField(
-                        description
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxSize(),
-                placeholder = {
-                    Text(
-                        text = stringResource(
-                            id = R.string.note_details_screen_description_text_field_placeholder
+                    ),
+                    textStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+                )
+                TextField(
+                    value = uiState.noteDescription,
+                    onValueChange = { description ->
+                        noteDetailsViewModel.updateDescriptionField(
+                            description
                         )
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
+                    },
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    placeholder = {
+                        Text(
+                            text = stringResource(
+                                id = R.string.note_details_screen_description_text_field_placeholder
+                            )
+                        )
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        containerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
 //                    placeholderColor = Color.Gray
-                ),
-                textStyle = TextStyle(fontSize = 20.sp),
-            )
+                    ),
+                    textStyle = TextStyle(fontSize = 20.sp),
+                )
+            }
         }
     }
 }
